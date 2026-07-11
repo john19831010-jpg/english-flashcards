@@ -262,6 +262,23 @@
     const cardContainer = document.getElementById('cardContainer');
     const finishScreen = document.getElementById('finishScreen');
 
+    let englishVoice = null;
+    
+    // 取得可用的語音列表，並鎖定為英文發音 (解決預設發音怪怪的問題)
+    function loadVoices() {
+      const voices = window.speechSynthesis.getVoices();
+      // 優先尋找 Google 的美式英文，或者 macOS 內建的 Samantha，最後是任何美式英文
+      englishVoice = voices.find(v => v.lang === 'en-US' && v.name.includes('Google')) || 
+                     voices.find(v => v.name.includes('Samantha')) || 
+                     voices.find(v => v.lang === 'en-US') || 
+                     voices.find(v => v.lang.startsWith('en'));
+    }
+
+    if ('speechSynthesis' in window) {
+      loadVoices();
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+    }
+
     // 洗牌函數
     function shuffleArray(array) {
       const newArray = [...array];
@@ -307,6 +324,9 @@
       const textToSpeak = currentDeck[currentIndex].en;
       const utterance = new SpeechSynthesisUtterance(textToSpeak);
       utterance.lang = 'en-US'; 
+      if (englishVoice) {
+        utterance.voice = englishVoice;
+      }
       utterance.rate = 0.85; // 語速稍微放慢適合小孩
       window.speechSynthesis.speak(utterance);
     }
@@ -326,6 +346,9 @@
         // 答對時給予語音鼓勵
         const utterance = new SpeechSynthesisUtterance("Good job!");
         utterance.lang = 'en-US';
+        if (englishVoice) {
+          utterance.voice = englishVoice;
+        }
         window.speechSynthesis.speak(utterance);
       } else {
         // 答錯給予開頭字母提示
@@ -352,6 +375,9 @@
       // 完成音效
       const utterance = new SpeechSynthesisUtterance("Congratulations! You finished the test!");
       utterance.lang = 'en-US';
+      if (englishVoice) {
+        utterance.voice = englishVoice;
+      }
       window.speechSynthesis.speak(utterance);
     }
 
