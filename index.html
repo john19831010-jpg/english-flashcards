@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unit 9 互動聽力拼寫字卡</title>
+  <style>
+    /* 引入現代字體 */
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&family=Noto+Sans+TC:wght@400;700&display=swap');
+    
+    body {
+      font-family: 'Nunito', 'Noto Sans TC', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+      color: #333;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 40px 30px;
+      width: 90%;
+      max-width: 450px;
+      text-align: center;
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    }
+
+    h1 {
+      color: white;
+      font-size: 1.8rem;
+      margin-top: 0;
+      margin-bottom: 15px;
+      text-shadow: 1px 1px 4px rgba(0,0,0,0.2);
+    }
+
+    .progress {
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: bold;
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+      background: rgba(0, 0, 0, 0.1);
+      display: inline-block;
+      padding: 5px 15px;
+      border-radius: 20px;
+    }
+
+    .flashcard {
+      background: white;
+      border-radius: 20px;
+      padding: 40px 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      position: relative;
+      transition: transform 0.3s ease;
+    }
+    
+    .chinese-hint {
+      font-size: 1.3rem;
+      color: #666;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+
+    .play-btn {
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 70px;
+      height: 70px;
+      font-size: 2rem;
+      cursor: pointer;
+      box-shadow: 0 6px 15px rgba(255, 107, 107, 0.4);
+      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0 auto 30px auto;
+    }
+
+    .play-btn:hover {
+      transform: scale(1.1);
+      background: #ff5252;
+    }
+    
+    .play-btn:active {
+      transform: scale(0.95);
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 15px;
+      font-size: 1.3rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      box-sizing: border-box;
+      text-align: center;
+      outline: none;
+      transition: all 0.3s;
+      font-family: 'Nunito', sans-serif;
+    }
+
+    input[type="text"]:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    }
+
+    .btn-container {
+      margin-top: 20px;
+    }
+
+    .check-btn, .next-btn {
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 30px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      font-family: 'Noto Sans TC', sans-serif;
+    }
+
+    .check-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      box-shadow: 0 6px 15px rgba(118, 75, 162, 0.4);
+    }
+
+    .check-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(118, 75, 162, 0.6);
+    }
+    
+    .next-btn {
+      background: linear-gradient(to right, #0ba360 0%, #3cba92 100%);
+      box-shadow: 0 6px 15px rgba(11, 163, 96, 0.4);
+      display: none;
+    }
+
+    .next-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(11, 163, 96, 0.6);
+    }
+
+    .feedback {
+      margin-top: 15px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      min-height: 25px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .feedback.show { opacity: 1; }
+    .correct { color: #0ba360; }
+    .incorrect { color: #ff5252; }
+
+    .finish-screen {
+      display: none;
+      color: white;
+      animation: fadeIn 0.5s;
+    }
+    .finish-screen h2 {
+      font-size: 2.5rem;
+      margin-bottom: 15px;
+      text-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+    }
+    .finish-screen p {
+      font-size: 1.2rem;
+      margin-bottom: 30px;
+    }
+    .restart-btn {
+      background: white;
+      color: #764ba2;
+      border: none;
+      padding: 15px 40px;
+      border-radius: 30px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+      transition: all 0.3s;
+    }
+    .restart-btn:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container" id="app">
+    <h1>🎧 聽音拼字挑戰</h1>
+    <div class="progress" id="progressText">1 / 15</div>
+    
+    <div class="flashcard" id="cardContainer">
+      <div class="chinese-hint" id="chineseHint">中文提示</div>
+      
+      <!-- 點擊播放語音 -->
+      <button class="play-btn" onclick="playAudio()" title="播放發音">🔊</button>
+      
+      <!-- 讓弟弟輸入的欄位 -->
+      <input type="text" id="wordInput" placeholder="請輸入聽到的英文..." autocomplete="off" spellcheck="false">
+      
+      <div class="feedback" id="feedbackMsg"></div>
+      
+      <div class="btn-container">
+        <button class="check-btn" id="checkBtn" onclick="checkAnswer()">對答案</button>
+        <button class="next-btn" id="nextBtn" onclick="nextCard()">下一題 ➔</button>
+      </div>
+    </div>
+
+    <!-- 測驗完成畫面 -->
+    <div class="finish-screen" id="finishScreen">
+      <h2>🎉 挑戰成功！</h2>
+      <p>弟弟太棒了！所有單字都拼對囉！</p>
+      <button class="restart-btn" onclick="startTest()">再玩一次</button>
+    </div>
+  </div>
+
+  <script>
+    // 題庫：結合了先前的單字與量詞
+    const vocabulary = [
+      { en: "hobby", zh: "嗜好" },
+      { en: "model airplane", zh: "模型飛機" },
+      { en: "plastic", zh: "塑膠" },
+      { en: "metal", zh: "金屬" },
+      { en: "glass", zh: "玻璃" },
+      { en: "collect stamps", zh: "收集郵票" },
+      { en: "play baseball", zh: "打棒球" },
+      { en: "put together a model", zh: "組裝模型" },
+      { en: "lend a paintbrush", zh: "借出畫筆" },
+      { en: "borrow a stapler", zh: "借入釘書機" },
+      { en: "a tube of glue", zh: "一條膠水" },
+      { en: "a bag of marbles", zh: "一袋彈珠" },
+      { en: "a bottle of paint remover", zh: "一瓶去漆劑" },
+      { en: "a box of soldiers", zh: "一盒玩具兵" },
+      { en: "drawer", zh: "抽屜" }
+    ];
+
+    let currentIndex = 0;
+    let currentDeck = [];
+
+    // DOM Elements
+    const progressText = document.getElementById('progressText');
+    const chineseHint = document.getElementById('chineseHint');
+    const wordInput = document.getElementById('wordInput');
+    const feedbackMsg = document.getElementById('feedbackMsg');
+    const checkBtn = document.getElementById('checkBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const cardContainer = document.getElementById('cardContainer');
+    const finishScreen = document.getElementById('finishScreen');
+
+    // 洗牌函數
+    function shuffleArray(array) {
+      const newArray = [...array];
+      for (let i = newArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+      }
+      return newArray;
+    }
+
+    function startTest() {
+      // 每次開始都隨機打亂題目順序
+      currentDeck = shuffleArray(vocabulary);
+      currentIndex = 0;
+      
+      cardContainer.style.display = 'block';
+      finishScreen.style.display = 'none';
+      progressText.style.display = 'inline-block';
+      
+      loadCard();
+    }
+
+    function loadCard() {
+      const currentWord = currentDeck[currentIndex];
+      chineseHint.textContent = currentWord.zh;
+      wordInput.value = '';
+      wordInput.disabled = false;
+      wordInput.focus();
+      
+      feedbackMsg.textContent = '';
+      feedbackMsg.className = 'feedback';
+      
+      checkBtn.style.display = 'block';
+      nextBtn.style.display = 'none';
+      progressText.textContent = `第 ${currentIndex + 1} 題 / 共 ${currentDeck.length} 題`;
+      
+      // 自動播放一次聲音 (如果瀏覽器允許)
+      setTimeout(playAudio, 400);
+    }
+
+    function playAudio() {
+      // 使用瀏覽器內建的 SpeechSynthesis API 發音
+      const textToSpeak = currentDeck[currentIndex].en;
+      const utterance = new SpeechSynthesisUtterance(textToSpeak);
+      utterance.lang = 'en-US'; 
+      utterance.rate = 0.85; // 語速稍微放慢適合小孩
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function checkAnswer() {
+      const userAnswer = wordInput.value.trim().toLowerCase();
+      const correctAnswer = currentDeck[currentIndex].en.toLowerCase();
+
+      if (userAnswer === correctAnswer) {
+        feedbackMsg.textContent = '✨ 答對了！好棒！';
+        feedbackMsg.className = 'feedback correct show';
+        wordInput.disabled = true;
+        
+        checkBtn.style.display = 'none';
+        nextBtn.style.display = 'block';
+        
+        // 答對時給予語音鼓勵
+        const utterance = new SpeechSynthesisUtterance("Good job!");
+        utterance.lang = 'en-US';
+        window.speechSynthesis.speak(utterance);
+      } else {
+        // 答錯給予開頭字母提示
+        feedbackMsg.textContent = `❌ 哎呀，拼錯了！(提示開頭: ${correctAnswer.charAt(0)}...)`;
+        feedbackMsg.className = 'feedback incorrect show';
+        wordInput.focus();
+      }
+    }
+
+    function nextCard() {
+      currentIndex++;
+      if (currentIndex < currentDeck.length) {
+        loadCard();
+      } else {
+        showFinishScreen();
+      }
+    }
+
+    function showFinishScreen() {
+      cardContainer.style.display = 'none';
+      progressText.style.display = 'none';
+      finishScreen.style.display = 'block';
+      
+      // 完成音效
+      const utterance = new SpeechSynthesisUtterance("Congratulations! You finished the test!");
+      utterance.lang = 'en-US';
+      window.speechSynthesis.speak(utterance);
+    }
+
+    // 支援按下 Enter 鍵直接對答案或進入下一題
+    wordInput.addEventListener("keypress", function(event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        if (checkBtn.style.display !== 'none') {
+          checkAnswer();
+        } else if (nextBtn.style.display !== 'none') {
+          nextCard();
+        }
+      }
+    });
+
+    // 啟動測驗
+    window.onload = startTest;
+  </script>
+</body>
+</html>
