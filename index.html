@@ -351,8 +351,8 @@
         }
         window.speechSynthesis.speak(utterance);
       } else {
-        // 答錯給予開頭字母提示
-        feedbackMsg.textContent = `❌ 哎呀，拼錯了！(提示開頭: ${correctAnswer.charAt(0)}...)`;
+        // 答錯直接給答案
+        feedbackMsg.textContent = `❌ 拼錯囉！正確答案是：${currentDeck[currentIndex].en}`;
         feedbackMsg.className = 'feedback incorrect show';
         wordInput.focus();
       }
